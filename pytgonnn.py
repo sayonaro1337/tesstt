@@ -1,106 +1,92 @@
-import arcade 
+import pygame
 import random
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-CRYST = "Кристалы и препятсвия"
-PLAYER_SPEED = 5
-ENEMY_SPEED = 2
+pygame.init()
 
-WALLS_POSITIONS = [
-    (SCREEN_WIDTH / 2 - 110, 10.5),
-    (SCREEN_WIDTH / 2 - 220, 10.5),
-    (25, 10.5),
-    (SCRENN_WIDTH / 2, 10.5),
-    (SCREEN_WIDTH / 2 + 110, 10.5),
-    (SCREEN_WIDTH / 2 + 220, 10.5),
-    (SCREEN_WIDTH - 25, 10.5),
-    
-    (SCRENN_WIDTH / 2 - 110,
-SCREEN_HEIGHT - 10.5),
-    (SCREEN_WIDTH / 2 - 220,
-SCREEN_HEIGHT - 10.5),
-    (25, SCREEN_HEIGHT - 10.5),
-    (SCREEN_WIDTH / 2, SCREEN_HEIGHT - 10.5),
-    (SCREEN_WIDTH / 2 + 110, 
-SCREEN_HEIGHT - 10.5),
-    (SCREEN_WIDTH - 25,
-SCREEN_HEIGHT - 10.5),
-    
-    (10.5, SCREEN_HEIGHT / 2 - 110),
-    (10.5, SCREEN_HEIGHT / 2 - 220),
-    (10.5, SCREEN_HEIGHT / 2),
-    (10.5, SCREEN_HEIGHT / 2 + 110),
-    (10.5, SCREEN_HEIGHT / 2 + 220),
-    
-    (SCREEN_WIDTH - 10.5,
-SCREEN_HEIGHT / 2 - 110),
-    (SCREEN_WIDTH - 10.5,
-SCREEN_HEIGHT / 2 - 200),
-    (SCREEN_WIDTH - 10.5,
-SCREEN_HEIGHT / 2),
-    (SCREEN_WIDTH - 10.5,
-SCREEN_HEIGHT / 2 + 110),
-    (SCRENN_WIDTH - 10.5,
-SCREEN_HEIGHT / 2 + 220),
-]
+# Инициализация размеров окна
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Собери все кристаллы!")
 
-COINS_POSITIONS = [(40, 375),
-                   (375,100),
-                   (200,300)]
-    
+# Определение цветов
+WHITE = (255, 255, 255)
 
-    
-    
-    
+# Загрузка изображений
+player_image = pygame.image.load('femalePerson_walk4.png')
 
-PLAYER_TEXTURE =
-ENEMY_TEXTURE = 
-CRYST_TEXTURE = 
-STY_TEXTURE = 
 
-class Plaer(arcade.Sprite):
-    def __init__(self):
-        super().__init__(PLAYER_TEXTURE)
-        self.center_x = 100
-        self.center_y = 100
-        self.speed = PLAYER_SPEED
+crystal_image = pygame.image.load('gemRed.png')
 
-class Enemy(arcade.Sprite):
-    def __init__(self):
-        super().__init__(ENEMY_TEXTURE)
-        self.center_x = x
-        self.cenetr_y = y
-        self.min_x = min_x
-        self.min_x = min_x
-        self.change_x = 2 
-        
-    def update(self):
-        self.center_x+=self.change_x
-        if self.center_x < self.min_x or self.center_x > self.max_x:
-            self.change_x *= -1
-            
-class CRYST(arcade.Sprite):
-    def __init__(self, x, y):
-        super().__init__(CRYST_TEXTURE)
-        self.center_x = x
-        self.center_y = y
-        
-class STY(arcade.Sprite):
-    def __init__(self,x,y):
-        super().__init__(STY_TEXTURE)
-        self.center_x = x
-        self.center_y = y
-        
-class MyGame(arcade.Window):
-    def__init__(self):
-        super().__init__(SCREEN_WIDTH,SCREEN_HEIGHT, TITLE)
-        self.player = Player()
-        self.enemies = arcade.SpriteList()
-        self.crysts = arcade.SpriteList()
-        self.stys = arcade.SrpiteList()
-        self.setup()
-        
-    def setup(self):
-        for i in range(3):
-            enemy = Enemy
+
+spike_image = pygame.image.load('cactus.png')
+
+
+# Начальные позиции игрока
+player_pos = [WIDTH // 2, HEIGHT // 2]
+velocity = 5
+
+# Генерация позиций кристаллов
+crystals = [[random.randint(0, WIDTH - 20), random.randint(0, HEIGHT - 20)] for _ in range(5)]
+score = 0
+
+# Генерация позиций шипов
+spikes = [[random.randint(0, WIDTH - 30), random.randint(0, HEIGHT - 30)] for _ in range(5)]
+
+# Шрифты для отображения счета
+font = pygame.font.Font(None, 36)
+
+running = True
+while running:
+    screen.fill(WHITE)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and player_pos[0] > 0:
+        player_pos[0] -= velocity
+    if keys[pygame.K_RIGHT] and player_pos[0] < WIDTH - 50:
+        player_pos[0] += velocity
+    if keys[pygame.K_UP] and player_pos[1] > 0:
+        player_pos[1] -= velocity
+    if keys[pygame.K_DOWN] and player_pos[1] < HEIGHT - 50:
+        player_pos[1] += velocity
+
+    for crystal in crystals[:]:
+        if (player_pos[0] < crystal[0] + 20 and
+            player_pos[0] + 50 > crystal[0] and
+            player_pos[1] < crystal[1] + 20 and
+            player_pos[1] + 50 > crystal[1]):
+            crystals.remove(crystal)
+            score += 1
+
+    for spike in spikes:
+        if (player_pos[0] < spike[0] + 30 and
+            player_pos[0] + 50 > spike[0] and
+            player_pos[1] < spike[1] + 30 and
+            player_pos[1] + 50 > spike[1]):
+            running = False  
+
+    # Рисуем игрока
+    screen.blit(player_image, player_pos)
+
+    # Рисуем кристаллы
+    for crystal in crystals:
+        screen.blit(crystal_image, crystal)
+
+    # Рисуем шипы
+    for spike in spikes:
+        screen.blit(spike_image, spike)
+
+    if not crystals:
+        text = font.render("Все кристаллы собраны!", True, (0, 0, 0))
+        screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2))
+
+    score_text = font.render(f"Счёт: {score}", True, (0, 0, 0))
+    screen.blit(score_text, (10, 10))
+
+    pygame.display.flip()
+    pygame.time.Clock().tick(30)
+
+pygame.quit()
