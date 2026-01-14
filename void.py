@@ -1,86 +1,91 @@
 import arcade
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 600
 
 MOVEMENT_SPEED = 5
 
-class RecoveryGame(arcade.Window):
+class GameWindow(arcade.Window):
     def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "Welcome Back!")
+        super().__init__(WINDOW_WIDTH, WINDOW_HEIGHT, "Космическая игра")
         arcade.set_background_color(arcade.color.BLACK)
-
-        self.all_sprites = arcade.SpriteList()
-
-        self.star = arcade.Sprite(":resources:images/items/star.png", scale=0.8)
-        self.star.center_x = 400
-        self.star.center_y = 300
-        self.star.angle = 0
-        self.star.change_angle = 2
+        
+        self.sprites = arcade.SpriteList()
+        
+        meteorite_image_path = ":resources:images/space_shooter/meteorGrey_big1.png"
+        self.meteorite_sprite = arcade.Sprite(meteorite_image_path, scale=0.8)
+        self.meteorite_sprite.position = WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2
+        self.meteorite_sprite.angle = 0
+        self.meteorite_sprite.change_angle = 2
         self.scale_speed = 0.005
         self.max_scale = 1
         self.min_scale = 0.5
-        self.star.change_x = 2.6
-        self.star.change_y = 2
-        self.all_sprites.append(self.star)
-
-        self.player_list = arcade.SpriteList()
-        self.player = arcade.Sprite(":resources:/images/space_shooter/playerShip2_orange.png", scale=0.8)
-        self.player.center_x = 400
-        self.player.center_y = 300
-        self.player_list.append(self.player)
-        self.scale_speed = 0.01
-
+        self.meteorite_sprite.change_x = 2.6
+        self.meteorite_sprite.change_y = 2
+        self.sprites.append(self.meteorite_sprite)
+        
+        ship_image_path = ":resources:images/space_shooter/playerShip2_orange.png"
+        self.player_ship = arcade.Sprite(ship_image_path, scale=0.8)
+        self.player_ship.position = WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2
+        self.sprites.append(self.player_ship)
+    
     def on_draw(self):
         self.clear()
-        self.all_sprites.draw()
-        self.player_list.draw()
-
-    def on_update(self, delta_time):
-        self.player_list.update_animation(delta_time)
-        # 1. Вращение
-        self.star.angle += self.star.change_angle
-
-        current_s = self.star.scale[0]
-        new_scale = current_s + self.scale_speed
-
+        self.sprites.draw()
+    
+    def update_meteorite(self, dt):
+        self.meteorite_sprite.angle += self.meteorite_sprite.change_angle
+        
+        current_scale = self.meteorite_sprite.scale[0]  
+        new_scale = current_scale + self.scale_speed
+        
         if new_scale >= self.max_scale or new_scale <= self.min_scale:
             self.scale_speed *= -1
-        self.star.scale = new_scale
-
-        self.star.center_x += self.star.change_x
-        self.star.center_y += self.star.change_y
-        if self.star.left > SCREEN_WIDTH:
-            self.star.right = 0
-        if self.star.bottom > SCREEN_HEIGHT:
-            self.star.top = 0
-
-        self.player.center_x += self.player.change_x
-        self.player.center_y += self.player.change_y
-
-
+        
+        self.meteorite_sprite.scale = (new_scale, new_scale)
+        
+        self.meteorite_sprite.center_x += self.meteorite_sprite.change_x
+        self.meteorite_sprite.center_y += self.meteorite_sprite.change_y
+        
+        if self.meteorite_sprite.left > WINDOW_WIDTH:
+            self.meteorite_sprite.right = 0
+        elif self.meteorite_sprite.right < 0:
+            self.meteorite_sprite.left = WINDOW_WIDTH
+        if self.meteorite_sprite.bottom > WINDOW_HEIGHT:
+            self.meteorite_sprite.top = 0
+        elif self.meteorite_sprite.top < 0:
+            self.meteorite_sprite.bottom = WINDOW_HEIGHT
+    
+    def update_player(self, dt):
+        self.player_ship.center_x += self.player_ship.change_x
+        self.player_ship.center_y += self.player_ship.change_y
+    
+    def on_update(self, delta_time):
+        self.update_meteorite(delta_time)
+        self.update_player(delta_time)
+    
     def on_key_press(self, key, modifiers):
         match key:
-            case arcade.key.A:
-                self.player.change_x = -MOVEMENT_SPEED
-            case arcade.key.D:
-                self.player.change_x = MOVEMENT_SPEED
-            case arcade.key.W:
-                self.player.change_y = MOVEMENT_SPEED
-            case arcade.key.S:
-                self.player.change_y = -MOVEMENT_SPEED
+            case arcade.key.LEFT:
+                self.player_ship.change_x = -MOVEMENT_SPEED
+            case arcade.key.RIGHT:
+                self.player_ship.change_x = MOVEMENT_SPEED
+            case arcade.key.UP:
+                self.player_ship.change_y = MOVEMENT_SPEED
+            case arcade.key.DOWN:
+                self.player_ship.change_y = -MOVEMENT_SPEED
             case arcade.key.SPACE:
-                self.player.scale = (1.5,1.5)
-
+                self.player_ship.scale = (1.5, 1.5)
+    
     def on_key_release(self, key, modifiers):
         match key:
-            case arcade.key.A | arcade.key.D:
-                self.player.change_x = 0
-            case arcade.key.W | arcade.key.S:
-                self.player.change_y = 0
+            case arcade.key.LEFT | arcade.key.RIGHT:
+                self.player_ship.change_x = 0
+            case arcade.key.UP | arcade.key.DOWN:
+                self.player_ship.change_y = 0
             case arcade.key.SPACE:
-                self.player.scale = (1,1)
+                self.player_ship.scale = (1, 1)
 
 if __name__ == "__main__":
-    game = RecoveryGame()
+    game_window = GameWindow()
     arcade.run()
