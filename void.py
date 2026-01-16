@@ -28,6 +28,11 @@ class GameWindow(arcade.Window):
         self.player_ship = arcade.Sprite(ship_image_path, scale=0.8)
         self.player_ship.position = WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2
         self.sprites.append(self.player_ship)
+        
+        star_image_path = ":resources:images/items/star.png"
+        self.star_sprite = arcade.Sprite(star_image_path, scale=0.5)
+        self.star_sprite.position = WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2
+        self.sprites.append(self.star_sprite)
     
     def on_draw(self):
         self.clear()
@@ -36,7 +41,7 @@ class GameWindow(arcade.Window):
     def update_meteorite(self, dt):
         self.meteorite_sprite.angle += self.meteorite_sprite.change_angle
         
-        current_scale = self.meteorite_sprite.scale[0]  
+        current_scale = self.meteorite_sprite.scale[0]
         new_scale = current_scale + self.scale_speed
         
         if new_scale >= self.max_scale or new_scale <= self.min_scale:
